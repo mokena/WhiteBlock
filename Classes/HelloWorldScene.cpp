@@ -1,6 +1,6 @@
 #include "HelloWorldScene.h"
+#include "Block.h"
 
-USING_NS_CC;
 
 Scene* HelloWorld::createScene()
 {
@@ -27,54 +27,67 @@ bool HelloWorld::init()
         return false;
     }
     
-    Size visibleSize = Director::getInstance()->getVisibleSize();
+    visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
-    //    you may modify it.
+	startGame();
 
-    // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
-    
-	closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
-                                origin.y + closeItem->getContentSize().height/2));
+	auto listener = EventListenerTouchOneByOne::create();
+	listener->onTouchBegan = [this](Touch* t, Event* e) {
+		auto blocks = Block::getBlocks();
 
-    // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
-    menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 1);
+		for (auto it = blocks->begin(); it != blocks->end(); it++) {
+			if ((*it)->getLineIndex() == 1 && (*it)->getBoundingBox().containsPoint(t->getLocation())) {
+				if ((*it)->getColor() == Color3B::BLACK) {
+					(*it)->setColor(Color3B::GRAY);
+					moveDown();
+				}
+				else {
+					MessageBox("Failed!", "Game Over");
+				}
+			}
+		}
 
-    /////////////////////////////
-    // 3. add your codes below...
+		return false;
+	};
 
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
-    auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    
-    // position the label on the center of the screen
-    label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                            origin.y + visibleSize.height - label->getContentSize().height));
-
-    // add the label as a child to this layer
-    this->addChild(label, 1);
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-
-    // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-    // add the sprite as a child to this layer
-    this->addChild(sprite, 0);
-    
+	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+	
     return true;
 }
 
+void HelloWorld::addStartLine() {
+	Block* startLine = Block::createWithArgs(Color3B::YELLOW, Size(visibleSize.width, visibleSize.height / BLOCKS_IN_LINE), "", 20, Color4B::BLACK);
+	addChild(startLine);
+	startLine->setLineIndex(0);
+}
+
+void HelloWorld::addEndLine() {
+	Block* endLine = Block::createWithArgs(Color3B::GRAY, visibleSize, "GameOver", 40, Color4B::BLACK);
+	addChild(endLine);
+}
+
+void HelloWorld::addNormalLine(int lineIndex) {
+	int black = rand() % BLOCKS_IN_LINE;
+	Size size = Size(visibleSize.width / BLOCKS_IN_LINE - 1, visibleSize.height / BLOCKS_IN_LINE - 1);
+	for (int i = 0; i < BLOCKS_IN_LINE; i++) {
+		Block* b = Block::createWithArgs(i == black ? Color3B::BLACK : Color3B::WHITE, size, "", 20, Color4B::BLACK);
+		addChild(b);
+		b->setPosition(i*visibleSize.width / BLOCKS_IN_LINE, lineIndex*visibleSize.height / BLOCKS_IN_LINE);
+		b->setLineIndex(lineIndex);
+	}
+}
+
+void HelloWorld::startGame() {
+	addStartLine();
+	addNormalLine(1);
+	addNormalLine(2);
+	addNormalLine(3);	
+}
+
+void HelloWorld::moveDown() {
+
+}
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {
