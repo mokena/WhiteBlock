@@ -7,7 +7,8 @@ USING_NS_CC;
 class HelloWorld : public cocos2d::Layer
 {
 private:
-	static const int BLOCKS_IN_LINE = 4;
+	int lineCount;
+	bool showEnd;
 	Size visibleSize;
 	void addStartLine();
 	void addEndLine();
@@ -16,6 +17,8 @@ private:
 	void moveDown();
 
 public:
+	static const int BLOCKS_IN_LINE = 4;
+
     static cocos2d::Scene* createScene();
 
     virtual bool init();

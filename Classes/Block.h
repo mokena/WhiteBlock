@@ -18,4 +18,5 @@ public:
 	void removeBlock();
 	int getLineIndex();
 	void setLineIndex(int line);
+	void moveDown();
 };

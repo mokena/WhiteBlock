@@ -1,4 +1,5 @@
 #include "Block.h"
+#include "HelloWorldScene.h"
 
 Vector<Block*>* Block::blocks = new Vector<Block*>();
 
@@ -22,8 +23,9 @@ bool Block::initWithArgs(Color3B color, Size size, std::string label, float font
 	lb->setString(label);
 	lb->setSystemFontSize(fontSize);
 	lb->setTextColor(textColor);
-	addChild(lb);
+	lb->setAnchorPoint(Vec2(0.5, 0.5));
 	lb->setPosition(size.width / 2, size.height / 2);
+	addChild(lb);
 
 	lineIndex = 0;
 
@@ -45,4 +47,15 @@ void Block::setLineIndex(int line) {
 
 Vector<Block*>* Block::getBlocks() {
 	return Block::blocks;
+}
+
+void Block::moveDown() {
+	lineIndex--;
+	auto size = Director::getInstance()->getVisibleSize();
+	runAction(Sequence::create(MoveBy::create(0.25f, Vec2(0, -size.height/HelloWorld::BLOCKS_IN_LINE)), CallFunc::create([this]() {
+		if (lineIndex < 0) {
+			removeBlock();
+		}
+	}), NULL));
+
 }

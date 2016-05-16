@@ -26,7 +26,9 @@ bool HelloWorld::init()
     {
         return false;
     }
-    
+
+	lineCount = 20;
+	showEnd = false;
     visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -42,9 +44,14 @@ bool HelloWorld::init()
 					(*it)->setColor(Color3B::GRAY);
 					moveDown();
 				}
+				else if ((*it)->getColor() == Color3B::MAGENTA) {
+					moveDown();
+					showEnd = true;
+				}
 				else {
 					MessageBox("Failed!", "Game Over");
 				}
+				break;
 			}
 		}
 
@@ -59,15 +66,22 @@ bool HelloWorld::init()
 void HelloWorld::addStartLine() {
 	Block* startLine = Block::createWithArgs(Color3B::YELLOW, Size(visibleSize.width, visibleSize.height / BLOCKS_IN_LINE), "", 20, Color4B::BLACK);
 	addChild(startLine);
-	startLine->setLineIndex(0);
+	int lineIndex = 0;
+	startLine->setLineIndex(lineIndex);
+	startLine->setPosition(0, lineIndex*visibleSize.height / BLOCKS_IN_LINE);
 }
 
 void HelloWorld::addEndLine() {
-	Block* endLine = Block::createWithArgs(Color3B::GRAY, visibleSize, "GameOver", 40, Color4B::BLACK);
+	lineCount--;
+	Block* endLine = Block::createWithArgs(Color3B::MAGENTA, visibleSize, "Game Over", 40, Color4B::BLACK);
 	addChild(endLine);
+	int lineIndex = 4;
+	endLine->setLineIndex(lineIndex);
+	endLine->setPosition(0, lineIndex*visibleSize.height / BLOCKS_IN_LINE);
 }
 
 void HelloWorld::addNormalLine(int lineIndex) {
+	//srand(time(NULL));
 	int black = rand() % BLOCKS_IN_LINE;
 	Size size = Size(visibleSize.width / BLOCKS_IN_LINE - 1, visibleSize.height / BLOCKS_IN_LINE - 1);
 	for (int i = 0; i < BLOCKS_IN_LINE; i++) {
@@ -76,6 +90,7 @@ void HelloWorld::addNormalLine(int lineIndex) {
 		b->setPosition(i*visibleSize.width / BLOCKS_IN_LINE, lineIndex*visibleSize.height / BLOCKS_IN_LINE);
 		b->setLineIndex(lineIndex);
 	}
+	lineCount--;
 }
 
 void HelloWorld::startGame() {
@@ -86,7 +101,20 @@ void HelloWorld::startGame() {
 }
 
 void HelloWorld::moveDown() {
-
+	CCLOG("line count %d", lineCount);
+	if (lineCount > 0) {
+		addNormalLine(4);
+	}
+	else if(lineCount == 0) {
+		addEndLine();
+	}
+	
+	if (!showEnd) {
+		auto bs = Block::getBlocks();
+		for (auto it = bs->begin(); it != bs->end(); it++) {
+			(*it)->moveDown();
+		}
+	}
 }
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
