@@ -9,12 +9,20 @@ class HelloWorld : public cocos2d::Layer
 private:
 	int lineCount;
 	bool showEnd;
+	bool timerRunning;
+	long startTime;
 	Size visibleSize;
+	Node* gameLayer;
+	Label* timerLabel;
+
 	void addStartLine();
 	void addEndLine();
 	void addNormalLine(int lineIndex);
 	void startGame();
 	void moveDown();
+
+	void startTimer();
+	void stopTimer();
 
 public:
 	static const int BLOCKS_IN_LINE = 4;
@@ -22,6 +30,8 @@ public:
     static cocos2d::Scene* createScene();
 
     virtual bool init();
+
+	virtual void update(float dt);
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
